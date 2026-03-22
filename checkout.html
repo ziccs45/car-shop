@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout | Tesla Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+        body { background: #0a0a0a; color: white; }
+        
+        .glass-card {
+            background: rgba(20, 20, 30, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 255, 0.1);
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+        }
+        .glass-card:hover {
+            border-color: #00ffff;
+            transform: translateY(-5px);
+            box-shadow: 0 20px 30px -10px #00ffff80;
+        }
+        
+        .input-field {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: white;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #00ffff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #00ffff, #ff3366);
+            border: none;
+            padding: 1rem;
+            border-radius: 2rem;
+            color: black;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        .btn-primary:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.5);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 1.5px solid #00ffff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 2rem;
+            color: #00ffff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background: #00ffff;
+            color: black;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+        }
+        
+        .payment-method {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 1rem;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .payment-method.selected {
+            border-color: #00ffff;
+            background: rgba(0, 255, 255, 0.1);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+        }
+        
+        .crypto-details {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-top: 1rem;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+        }
+        
+        .crypto-address {
+            background: #1a1a1a;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-family: monospace;
+            word-break: break-all;
+            border: 1px solid #00ffff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .copy-btn {
+            background: #00ffff;
+            color: black;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .copy-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px #00ffff;
+        }
+        
+        .cart-item {
+            border-bottom: 1px solid rgba(0, 255, 255, 0.1);
+            padding: 1rem 0;
+        }
+        .cart-item:last-child { border-bottom: none; }
+        
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #00ffff;
+            color: #0a0a0a;
+            padding: 1rem 2rem;
+            border-radius: 3rem;
+            font-weight: 600;
+            z-index: 9999;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .spinner {
+            border: 3px solid rgba(0, 255, 255, 0.1);
+            border-top: 3px solid #00ffff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 1rem auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .hidden { display: none; }
+        
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .back-btn:hover {
+            background: rgba(0, 255, 255, 0.2);
+            color: #00ffff;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .pulse { animation: pulse 2s infinite; }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 bg-[#0a0a0a]/80 backdrop-blur-md border-b border-[#00ffff]/20">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 border-2 border-[#00ffff] rounded-full flex items-center justify-center">
+                    <span class="text-[#00ffff] font-bold">T</span>
+                </div>
+                <span class="font-bold text-xl">TESLA <span class="text-[#00ffff]">STORE</span></span>
+            </div>
+            <a href="/dashboard.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </nav>
+
+    <div class="pt-24 pb-12 px-4">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-3xl font-bold mb-8">Secure Checkout</h1>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Checkout Form -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Login/Register Prompt -->
+                    <div class="glass-card p-6">
+                        <div class="flex items-center gap-3 mb-4">
+                            <i class="fas fa-user-circle text-3xl text-[#00ffff]"></i>
+                            <h2 class="text-xl font-bold">Account Information</h2>
+                        </div>
+                        <div id="userInfo">
+                            <div class="spinner"></div>
+                        </div>
+                        <div id="guestOptions" class="hidden mt-4">
+                            <button onclick="showLoginModal()" class="btn-primary mb-3">Login to Existing Account</button>
+                            <p class="text-center text-[#b0b0b0] text-sm">or</p>
+                            <button onclick="checkoutAsGuest()" class="btn-secondary mt-3 w-full">Continue as Guest</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Shipping Information -->
+                    <div class="glass-card p-6">
+                        <div class="flex items-center gap-3 mb-4">
+                            <i class="fas fa-truck text-2xl text-[#00ffff]"></i>
+                            <h2 class="text-xl font-bold">Shipping Information</h2>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input type="text" id="fullName" placeholder="Full Name" class="input-field">
+                            <input type="email" id="email" placeholder="Email Address" class="input-field">
+                            <input type="tel" id="phone" placeholder="Phone Number" class="input-field">
+                            <input type="text" id="address" placeholder="Street Address" class="input-field">
+                            <input type="text" id="city" placeholder="City" class="input-field">
+                            <input type="text" id="zipCode" placeholder="ZIP Code" class="input-field">
+                            <select id="country" class="input-field">
+                                <option value="US">United States</option>
+                                <option value="CA">Canada</option>
+                                <option value="UK">United Kingdom</option>
+                                <option value="NG">Nigeria</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Payment Method -->
+                    <div class="glass-card p-6">
+                        <div class="flex items-center gap-3 mb-4">
+                            <i class="fas fa-credit-card text-2xl text-[#00ffff]"></i>
+                            <h2 class="text-xl font-bold">Payment Method</h2>
+                        </div>
+                        <div class="space-y-3">
+                            <!-- Credit Card -->
+                            <div class="payment-method" onclick="selectPayment('card')" id="paymentCard">
+                                <div class="flex items-center gap-3">
+                                    <i class="fas fa-credit-card text-xl text-[#00ffff]"></i>
+                                    <div>
+                                        <p class="font-semibold">Credit / Debit Card</p>
+                                        <p class="text-xs text-[#b0b0b0]">Visa, Mastercard, American Express</p>
+                                    </div>
+                                    <i class="fas fa-check-circle ml-auto text-[#00ffff] hidden" id="cardCheck"></i>
+                                </div>
+                            </div>
+                            <div id="cardDetails" class="hidden mt-3">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <input type="text" id="cardNumber" placeholder="Card Number" class="input-field">
+                                    <input type="text" id="cardName" placeholder="Name on Card" class="input-field">
+                                    <input type="text" id="expiry" placeholder="MM/YY" class="input-field">
+                                    <input type="text" id="cvv" placeholder="CVV" class="input-field">
+                                </div>
+                            </div>
+                            
+                            <!-- PayPal -->
+                            <div class="payment-method" onclick="selectPayment('paypal')" id="paymentPaypal">
+                                <div class="flex items-center gap-3">
+                                    <i class="fab fa-paypal text-xl text-[#00ffff]"></i>
+                                    <div>
+                                        <p class="font-semibold">PayPal</p>
+                                        <p class="text-xs text-[#b0b0b0]">Pay with your PayPal account</p>
+                                    </div>
+                                    <i class="fas fa-check-circle ml-auto text-[#00ffff] hidden" id="paypalCheck"></i>
+                                </div>
+                            </div>
+                            <div id="paypalDetails" class="hidden mt-3 crypto-details">
+                                <p class="text-sm text-[#b0b0b0] mb-2">PayPal Email:</p>
+                                <div class="crypto-address">
+                                    <span id="paypalEmail">payments@teslastore.com</span>
+                                    <button onclick="copyToClipboard('paypalEmail')" class="copy-btn"><i class="fas fa-copy"></i> Copy</button>
+                                </div>
+                                <p class="text-xs text-[#b0b0b0] mt-2">Send payment to this email and click "I've Paid" after completing payment.</p>
+                            </div>
+                            
+                            <!-- Bitcoin -->
+                            <div class="payment-method" onclick="selectPayment('bitcoin')" id="paymentBitcoin">
+                                <div class="flex items-center gap-3">
+                                    <i class="fab fa-bitcoin text-xl text-[#ff6600]"></i>
+                                    <div>
+                                        <p class="font-semibold">Bitcoin (BTC)</p>
+                                        <p class="text-xs text-[#b0b0b0]">Fast, secure, worldwide</p>
+                                    </div>
+                                    <i class="fas fa-check-circle ml-auto text-[#00ffff] hidden" id="bitcoinCheck"></i>
+                                </div>
+                            </div>
+                            <div id="bitcoinDetails" class="hidden mt-3 crypto-details">
+                                <p class="text-sm text-[#b0b0b0] mb-2">Bitcoin Address:</p>
+                                <div class="crypto-address">
+                                    <span id="btcAddress"> bc1q9ghf978kaej87pkqmhleflgz6td5hz69sem338</span>
+                                    <button onclick="copyToClipboard('btcAddress')" class="copy-btn"><i class="fas fa-copy"></i> Copy</button>
+                                </div>
+                                <p class="text-xs text-[#b0b0b0] mt-2">Send exact amount in BTC. Transaction will be confirmed within 10-30 minutes.</p>
+                            </div>
+                            
+                            <!-- Ethereum -->
+                            <div class="payment-method" onclick="selectPayment('ethereum')" id="paymentEthereum">
+                                <div class="flex items-center gap-3">
+                                    <i class="fab fa-ethereum text-xl text-[#627eea]"></i>
+                                    <div>
+                                        <p class="font-semibold">Ethereum (ETH)</p>
+                                        <p class="text-xs text-[#b0b0b0]">Smart contract enabled</p>
+                                    </div>
+                                    <i class="fas fa-check-circle ml-auto text-[#00ffff] hidden" id="ethereumCheck"></i>
+                                </div>
+                            </div>
+                            <div id="ethereumDetails" class="hidden mt-3 crypto-details">
+                                <p class="text-sm text-[#b0b0b0] mb-2">Ethereum Address:</p>
+                                <div class="crypto-address">
+                                    <span id="ethAddress">0x483251aba82465785c9170db7dc423ae497fb2f6</span>
+                                    <button onclick="copyToClipboard('ethAddress')" class="copy-btn"><i class="fas fa-copy"></i> Copy</button>
+                                </div>
+                                <p class="text-xs text-[#b0b0b0] mt-2">Send exact amount in ETH. Gas fees apply.</p>
+                            </div>
+                            
+                            <!-- Dogecoin -->
+                            <div class="payment-method" onclick="selectPayment('dogecoin')" id="paymentDogecoin">
+                                <div class="flex items-center gap-3">
+                                    <i class="fab fa-dogecoin text-xl text-[#c2a633]"></i>
+                                    <div>
+                                        <p class="font-semibold">Dogecoin (DOGE)</p>
+                                        <p class="text-xs text-[#b0b0b0]">Much wow! Very crypto!</p>
+                                    </div>
+                                    <i class="fas fa-check-circle ml-auto text-[#00ffff] hidden" id="dogecoinCheck"></i>
+                                </div>
+                            </div>
+                            <div id="dogecoinDetails" class="hidden mt-3 crypto-details">
+                                <p class="text-sm text-[#b0b0b0] mb-2">Dogecoin Address:</p>
+                                <div class="crypto-address">
+                                    <span id="dogeAddress">DNoTPob8AjJi6D53NK863arh7iDxg3cM2x</span>
+                                    <button onclick="copyToClipboard('dogeAddress')" class="copy-btn"><i class="fas fa-copy"></i> Copy</button>
+                                </div>
+                                <p class="text-xs text-[#b0b0b0] mt-2">Send exact amount in DOGE. Much fast! Very secure!</p>
+                            </div>
+                            
+                            <!-- Solana -->
+                            <div class="payment-method" onclick="selectPayment('solana')" id="paymentSolana">
+                                <div class="flex items-center gap-3">
+                                    <i class="fas fa-sun text-xl text-[#00ff9d]"></i>
+                                    <div>
+                                        <p class="font-semibold">Solana (SOL)</p>
+                                        <p class="text-xs text-[#b0b0b0]">Lightning fast transactions</p>
+                                    </div>
+                                    <i class="fas fa-check-circle ml-auto text-[#00ffff] hidden" id="solanaCheck"></i>
+                                </div>
+                            </div>
+                            <div id="solanaDetails" class="hidden mt-3 crypto-details">
+                                <p class="text-sm text-[#b0b0b0] mb-2">Solana Address:</p>
+                                <div class="crypto-address">
+                                    <span id="solAddress">7r9cmBvLhDsfSoHEQfEawy7fh4x6PRHLWw4oP4PT7SJN</span>
+                                    <button onclick="copyToClipboard('solAddress')" class="copy-btn"><i class="fas fa-copy"></i> Copy</button>
+                                </div>
+                                <p class="text-xs text-[#b0b0b0] mt-2">Send exact amount in SOL. Confirms in seconds.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Order Summary -->
+                <div class="lg:col-span-1">
+                    <div class="glass-card p-6 sticky top-24">
+                        <h2 class="text-xl font-bold mb-4">Order Summary</h2>
+                        <div id="cartItems" class="space-y-3 max-h-96 overflow-y-auto"></div>
+                        
+                        <div class="border-t border-[#00ffff]/20 mt-4 pt-4 space-y-2">
+                            <div class="flex justify-between">
+                                <span>Subtotal:</span>
+                                <span id="subtotal">$0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Shipping:</span>
+                                <span id="shipping">Free</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Tax (10%):</span>
+                                <span id="tax">$0</span>
+                            </div>
+                            <div class="flex justify-between text-xl font-bold pt-2 border-t border-[#00ffff]/20">
+                                <span>Total:</span>
+                                <span id="total" class="text-[#00ffff]">$0</span>
+                            </div>
+                        </div>
+                        
+                        <button id="placeOrderBtn" class="btn-primary mt-6">
+                            <i class="fas fa-lock mr-2"></i> Confirm Payment
+                        </button>
+                        <p class="text-xs text-center text-[#b0b0b0] mt-3">
+                            <i class="fas fa-shield-alt text-[#00ffff] mr-1"></i>
+                            Secure transaction • 256-bit encryption
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-70 hidden items-center justify-center z-50">
+        <div class="bg-gray-900 rounded-2xl p-8 max-w-md w-full mx-4 border border-[#00ffff]">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-white">Login to Checkout</h2>
+                <button onclick="closeLoginModal()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <input type="email" id="checkoutEmail" placeholder="Email" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 mb-4 text-white">
+            <input type="password" id="checkoutPassword" placeholder="Password" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 mb-4 text-white">
+            <button onclick="loginForCheckout()" class="w-full bg-[#00ffff] text-black font-bold py-3 rounded-lg hover:scale-105 transition">Login</button>
+            <p class="text-center text-[#b0b0b0] text-sm mt-4">
+                Don't have an account? <button onclick="goToRegister()" class="text-[#00ffff]">Register</button>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        let cart = JSON.parse(localStorage.getItem('teslaCart')) || [];
+        let selectedPaymentMethod = 'card';
+        let currentUser = null;
+        let isLoggedIn = false;
+        let isGuest = false;
+
+        function showNotification(message, isError = false) {
+            const notif = document.createElement('div');
+            notif.className = 'notification';
+            notif.style.background = isError ? '#ff3366' : '#00ffff';
+            notif.textContent = message;
+            document.body.appendChild(notif);
+            setTimeout(() => notif.remove(), 3000);
+        }
+
+        function copyToClipboard(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(text);
+            showNotification('Address copied to clipboard!');
+        }
+
+        function selectPayment(method) {
+            selectedPaymentMethod = method;
+            
+            // Reset all selections
+            document.querySelectorAll('.payment-method').forEach(el => el.classList.remove('selected'));
+            document.querySelectorAll('.payment-method i.fa-check-circle').forEach(el => el.classList.add('hidden'));
+            
+            // Hide all details
+            document.getElementById('cardDetails').classList.add('hidden');
+            document.getElementById('paypalDetails').classList.add('hidden');
+            document.getElementById('bitcoinDetails').classList.add('hidden');
+            document.getElementById('ethereumDetails').classList.add('hidden');
+            document.getElementById('dogecoinDetails').classList.add('hidden');
+            document.getElementById('solanaDetails').classList.add('hidden');
+            
+            // Show selected details
+            if (method === 'card') {
+                document.getElementById('paymentCard').classList.add('selected');
+                document.getElementById('cardCheck').classList.remove('hidden');
+                document.getElementById('cardDetails').classList.remove('hidden');
+            } else if (method === 'paypal') {
+                document.getElementById('paymentPaypal').classList.add('selected');
+                document.getElementById('paypalCheck').classList.remove('hidden');
+                document.getElementById('paypalDetails').classList.remove('hidden');
+            } else if (method === 'bitcoin') {
+                document.getElementById('paymentBitcoin').classList.add('selected');
+                document.getElementById('bitcoinCheck').classList.remove('hidden');
+                document.getElementById('bitcoinDetails').classList.remove('hidden');
+            } else if (method === 'ethereum') {
+                document.getElementById('paymentEthereum').classList.add('selected');
+                document.getElementById('ethereumCheck').classList.remove('hidden');
+                document.getElementById('ethereumDetails').classList.remove('hidden');
+            } else if (method === 'dogecoin') {
+                document.getElementById('paymentDogecoin').classList.add('selected');
+                document.getElementById('dogecoinCheck').classList.remove('hidden');
+                document.getElementById('dogecoinDetails').classList.remove('hidden');
+            } else if (method === 'solana') {
+                document.getElementById('paymentSolana').classList.add('selected');
+                document.getElementById('solanaCheck').classList.remove('hidden');
+                document.getElementById('solanaDetails').classList.remove('hidden');
+            }
+        }
+
+        function updateOrderSummary() {
+            const cartItemsDiv = document.getElementById('cartItems');
+            const subtotalSpan = document.getElementById('subtotal');
+            const taxSpan = document.getElementById('tax');
+            const totalSpan = document.getElementById('total');
+            
+            if (cart.length === 0) {
+                cartItemsDiv.innerHTML = '<div class="text-center py-8 text-[#b0b0b0]"><i class="fas fa-shopping-cart text-3xl mb-2"></i><p>Your cart is empty</p><a href="/" class="text-[#00ffff] text-sm">Continue Shopping</a></div>';
+                subtotalSpan.textContent = '$0';
+                taxSpan.textContent = '$0';
+                totalSpan.textContent = '$0';
+                return;
+            }
+            
+            cartItemsDiv.innerHTML = cart.map(item => `
+                <div class="flex gap-3 py-2">
+                    <img src="${item.img}" class="w-16 h-16 object-cover rounded-lg" alt="${item.name}">
+                    <div class="flex-1">
+                        <p class="font-semibold">${item.name}</p>
+                        <p class="text-sm text-[#b0b0b0]">Qty: ${item.quantity}</p>
+                        <p class="text-[#00ffff]">$${(item.price * item.quantity).toLocaleString()}</p>
+                    </div>
+                </div>
+            `).join('');
+            
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const tax = subtotal * 0.1;
+            const total = subtotal + tax;
+            
+            subtotalSpan.textContent = '$' + subtotal.toLocaleString();
+            taxSpan.textContent = '$' + tax.toLocaleString();
+            totalSpan.textContent = '$' + total.toLocaleString();
+        }
+
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch('/api/auth/me', { credentials: 'include' });
+                if (response.ok) {
+                    currentUser = await response.json();
+                    isLoggedIn = true;
+                    
+                    document.getElementById('userInfo').innerHTML = `
+                        <div class="bg-[#00ffff]/10 border border-[#00ffff] rounded-lg p-4">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-check-circle text-[#00ffff] text-xl"></i>
+                                <div>
+                                    <p class="font-semibold">Welcome back, ${currentUser.name}!</p>
+                                    <p class="text-sm text-[#b0b0b0]">${currentUser.email}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    document.getElementById('guestOptions').classList.add('hidden');
+                    
+                    if (currentUser.name) document.getElementById('fullName').value = currentUser.name;
+                    if (currentUser.email) document.getElementById('email').value = currentUser.email;
+                    if (currentUser.phone) document.getElementById('phone').value = currentUser.phone;
+                    if (currentUser.address) document.getElementById('address').value = currentUser.address;
+                } else {
+                    document.getElementById('userInfo').innerHTML = `
+                        <div class="bg-yellow-500/10 border border-yellow-500 rounded-lg p-4">
+                            <p class="text-sm">You're checking out as a guest. <a href="#" onclick="showLoginModal()" class="text-[#00ffff]">Login</a> for faster checkout.</p>
+                        </div>
+                    `;
+                    document.getElementById('guestOptions').classList.remove('hidden');
+                }
+            } catch (error) {
+                document.getElementById('userInfo').innerHTML = `
+                    <div class="bg-yellow-500/10 border border-yellow-500 rounded-lg p-4">
+                        <p class="text-sm">You're checking out as a guest.</p>
+                    </div>
+                `;
+                document.getElementById('guestOptions').classList.remove('hidden');
+            }
+        }
+
+        function showLoginModal() { document.getElementById('loginModal').style.display = 'flex'; }
+        function closeLoginModal() { document.getElementById('loginModal').style.display = 'none'; }
+
+        async function loginForCheckout() {
+            const email = document.getElementById('checkoutEmail').value;
+            const password = document.getElementById('checkoutPassword').value;
+            if (!email || !password) { alert('Please enter email and password'); return; }
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password }),
+                    credentials: 'include'
+                });
+                if (response.ok) {
+                    showNotification('Login successful!');
+                    closeLoginModal();
+                    checkAuthStatus();
+                } else { alert('Invalid email or password'); }
+            } catch (error) { alert('Connection error.'); }
+        }
+
+        function goToRegister() { window.location.href = '/'; }
+        function checkoutAsGuest() {
+            isGuest = true;
+            document.getElementById('guestOptions').classList.add('hidden');
+            document.getElementById('userInfo').innerHTML = `
+                <div class="bg-[#00ffff]/10 border border-[#00ffff] rounded-lg p-4">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-user text-[#00ffff] text-xl"></i>
+                        <div><p class="font-semibold">Checking out as Guest</p><p class="text-sm text-[#b0b0b0]">Create an account after checkout</p></div>
+                    </div>
+                </div>
+            `;
+            showNotification('Continuing as guest');
+        }
+
+        async function placeOrder() {
+            const fullName = document.getElementById('fullName').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const address = document.getElementById('address').value;
+            const city = document.getElementById('city').value;
+            const zipCode = document.getElementById('zipCode').value;
+            
+            if (!fullName || !email || !phone || !address || !city || !zipCode) {
+                showNotification('Please fill in all shipping information', true);
+                return;
+            }
+            if (cart.length === 0) { showNotification('Your cart is empty', true); return; }
+            
+            const placeBtn = document.getElementById('placeOrderBtn');
+            placeBtn.disabled = true;
+            placeBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
+            
+            let orderSuccess = true;
+            
+            for (const item of cart) {
+                try {
+                    let response;
+                    if (isLoggedIn) {
+                        response = await fetch('/api/user/orders', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                car_id: parseInt(item.id),
+                                total_amount: item.price * item.quantity,
+                                payment_method: selectedPaymentMethod
+                            }),
+                            credentials: 'include'
+                        });
+                    } else {
+                        response = await fetch('/api/guest/orders', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                car_id: parseInt(item.id),
+                                total_amount: item.price * item.quantity,
+                                payment_method: selectedPaymentMethod,
+                                customer_name: fullName,
+                                customer_email: email,
+                                customer_phone: phone,
+                                customer_address: `${address}, ${city}, ${zipCode}`
+                            })
+                        });
+                    }
+                    if (!response.ok) orderSuccess = false;
+                } catch (error) { orderSuccess = false; }
+            }
+            
+            if (orderSuccess) {
+                localStorage.removeItem('teslaCart');
+                cart = [];
+                showNotification('🎉 Payment confirmed! Order placed successfully!');
+                setTimeout(() => { window.location.href = '/dashboard.html'; }, 2000);
+            } else {
+                showNotification('Failed to place order. Please try again.', true);
+                placeBtn.disabled = false;
+                placeBtn.innerHTML = '<i class="fas fa-lock mr-2"></i> Confirm Payment';
+            }
+        }
+
+        updateOrderSummary();
+        checkAuthStatus();
+        selectPayment('card');
+        document.getElementById('placeOrderBtn').addEventListener('click', placeOrder);
+    </script>
+</body>
+</html>

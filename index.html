@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tesla Motors | Official Store</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    }
+    
+    body {
+      background: #0a0a0a;
+      color: white;
+    }
+    
+    .glass-card {
+      background: rgba(20, 20, 30, 0.7);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 255, 255, 0.1);
+      border-radius: 1rem;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .glass-card:hover {
+      border-color: #00ffff;
+      transform: translateY(-5px);
+      box-shadow: 0 20px 30px -10px #00ffff80;
+    }
+    
+    .img-container {
+      width: 100%;
+      height: 200px;
+      overflow: hidden;
+      border-radius: 1rem 1rem 0 0;
+      background: #1a1a1a;
+    }
+    
+    .img-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+    
+    .glass-card:hover .img-container img {
+      transform: scale(1.1);
+    }
+    
+    .stock-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 0.25rem 0.75rem;
+      border-radius: 2rem;
+      font-size: 0.75rem;
+      border: 1px solid #00ffff;
+      color: #00ffff;
+      z-index: 10;
+    }
+    
+    /* Cart Sidebar */
+    .cart-sidebar {
+      position: fixed;
+      top: 0;
+      right: -400px;
+      width: 100%;
+      max-width: 380px;
+      height: 100vh;
+      background: #111;
+      border-left: 2px solid #00ffff;
+      transition: right 0.3s ease;
+      z-index: 1000;
+      padding: 1.5rem;
+      overflow-y: auto;
+    }
+    
+    .cart-sidebar.open {
+      right: 0;
+    }
+    
+    /* Car Detail Sidebar */
+    .detail-sidebar {
+      position: fixed;
+      top: 0;
+      right: -500px;
+      width: 100%;
+      max-width: 450px;
+      height: 100vh;
+      background: #111;
+      border-left: 2px solid #ff3366;
+      transition: right 0.3s ease;
+      z-index: 1001;
+      padding: 2rem;
+      overflow-y: auto;
+      box-shadow: -10px 0 30px rgba(255,51,102,0.3);
+    }
+    
+    .detail-sidebar.open {
+      right: 0;
+    }
+    
+    .detail-image {
+      width: 100%;
+      height: 250px;
+      border-radius: 1rem;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+      border: 2px solid #00ffff;
+    }
+    
+    .detail-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .detail-price {
+      font-size: 3rem;
+      font-weight: 800;
+      color: #00ffff;
+      margin-bottom: 0.5rem;
+    }
+    
+    .detail-specs {
+      background: rgba(0, 255, 255, 0.05);
+      border: 1px solid #00ffff20;
+      border-radius: 1rem;
+      padding: 1rem;
+      margin: 1.5rem 0;
+    }
+    
+    .detail-spec-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #00ffff20;
+    }
+    
+    .detail-spec-item:last-child {
+      border-bottom: none;
+    }
+    
+    .payment-method {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(0, 255, 255, 0.2);
+      border-radius: 1rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .payment-method:hover {
+      border-color: #00ffff;
+      background: rgba(0, 255, 255, 0.05);
+    }
+    
+    .payment-method.selected {
+      border-color: #00ffff;
+      background: rgba(0, 255, 255, 0.1);
+    }
+    
+    .payment-method i {
+      color: #00ffff;
+      margin-right: 0.5rem;
+    }
+    
+    .btn-payment {
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(135deg, #00ffff, #ff3366);
+      border: none;
+      border-radius: 3rem;
+      color: #0a0a0a;
+      font-weight: 700;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin: 1.5rem 0;
+    }
+    
+    .btn-payment:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 30px rgba(255,51,102,0.5);
+    }
+    
+    .btn-close {
+      position: absolute;
+      top: 1rem;
+      right: 1.5rem;
+      font-size: 2rem;
+      color: #ff3366;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    
+    .btn-close:hover {
+      transform: scale(1.2);
+    }
+    
+    .cart-count {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: #ff3366;
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .btn-add {
+      background: transparent;
+      border: 1px solid #00ffff;
+      color: #00ffff;
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .btn-add:hover {
+      background: #00ffff;
+      color: black;
+    }
+    
+    .btn-buy-now {
+      background: #00ffff;
+      color: black;
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .btn-buy-now:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px #00ffff;
+    }
+    
+    .elon-hero {
+      position: relative;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    
+    .elon-bg {
+      position: absolute;
+      inset: 0;
+      background-image: url('https://upload.wikimedia.org/wikipedia/commons/8/85/Elon_Musk_Royal_Society_%28crop1%29.jpg');
+      background-size: cover;
+      background-position: center 30%;
+      opacity: 0.9;
+    }
+    
+    .elon-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, #0a0a0a 0%, transparent 40%, #0a0a0a 100%);
+    }
+    
+    .elon-content {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      max-width: 800px;
+      padding: 2rem;
+    }
+    
+    .elon-content h1 {
+      font-size: 5rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      text-shadow: 0 0 30px #00ffff;
+    }
+    
+    .model-header {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 2rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #00ffff;
+      display: inline-block;
+    }
+    
+    /* Search and Filter Styles */
+    .search-container {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    
+    .search-box {
+      display: flex;
+      gap: 1rem;
+      background: rgba(0, 0, 0, 0.3);
+      border: 2px solid rgba(0, 255, 255, 0.2);
+      border-radius: 3rem;
+      padding: 0.5rem;
+    }
+    
+    .search-box input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      color: white;
+      font-size: 1rem;
+    }
+    
+    .search-box input:focus {
+      outline: none;
+    }
+    
+    .search-box input::placeholder {
+      color: rgba(255, 255, 255, 0.3);
+    }
+    
+    .search-box button {
+      background: #00ffff;
+      border: none;
+      border-radius: 3rem;
+      padding: 0.8rem 2rem;
+      color: black;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .search-box button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px #00ffff;
+    }
+    
+    .filter-row {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+    
+    .filter-select {
+      flex: 1;
+      min-width: 150px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 2px solid rgba(0, 255, 255, 0.2);
+      border-radius: 2rem;
+      padding: 0.8rem 1.5rem;
+      color: white;
+      cursor: pointer;
+    }
+    
+    .filter-select:focus {
+      outline: none;
+      border-color: #00ffff;
+    }
+    
+    .filter-select option {
+      background: #0a0a0a;
+      color: white;
+    }
+    
+    .results-count {
+      text-align: center;
+      color: #b0b0b0;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+    }
+    
+    .footer {
+      background: #0a0a0a;
+      border-top: 1px solid #00ffff20;
+      padding: 3rem 0 1.5rem;
+    }
+    
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+    
+    .footer h4 {
+      color: #00ffff;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    
+    .footer ul {
+      list-style: none;
+      padding: 0;
+    }
+    
+    .footer li {
+      margin-bottom: 0.5rem;
+    }
+    
+    .footer a {
+      color: #b0b0b0;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    
+    .footer a:hover {
+      color: #00ffff;
+    }
+    
+    .notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #00ffff;
+      color: #0a0a0a;
+      padding: 1rem 2rem;
+      border-radius: 3rem;
+      font-weight: 600;
+      z-index: 9999;
+      animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Cart Sidebar -->
+  <div class="cart-sidebar" id="cartSidebar">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-bold">Your Cart <span id="cartCount" class="text-[#00ffff]">(0)</span></h2>
+      <button id="closeCart" class="text-3xl text-[#ff3366]">&times;</button>
+    </div>
+    <div id="cartItems" class="space-y-4"></div>
+    <div class="mt-6 pt-6 border-t border-[#00ffff]/20">
+      <div class="flex justify-between mb-2">
+        <span>Subtotal:</span>
+        <span id="cartSubtotal" class="font-bold">$0</span>
+      </div>
+      <div class="flex justify-between mb-4">
+        <span>Tax (10%):</span>
+        <span id="cartTax" class="font-bold">$0</span>
+      </div>
+      <div class="flex justify-between text-xl font-bold mb-6">
+        <span>Total:</span>
+        <span id="cartTotal" class="text-[#00ffff]">$0</span>
+      </div>
+      <button id="checkoutBtn" class="w-full bg-[#00ffff] text-black py-3 rounded-full font-bold hover:bg-[#00ffff]/80 transition">
+        CHECKOUT
+      </button>
+    </div>
+  </div>
+
+  <!-- Car Detail Sidebar -->
+  <div class="detail-sidebar" id="detailSidebar">
+    <span class="btn-close" id="closeDetail">&times;</span>
+    
+    <div id="detailContent">
+      <!-- Dynamic content will be inserted here -->
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="fixed top-0 w-full z-50 bg-[#0a0a0a]/80 backdrop-blur-md border-b border-[#00ffff]/20">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 border-2 border-[#00ffff] rounded-full flex items-center justify-center">
+          <span class="text-[#00ffff] font-bold">T</span>
+        </div>
+        <span class="font-bold text-xl">TESLA <span class="text-[#00ffff]">STORE</span></span>
+      </div>
+      
+      <div class="hidden md:flex gap-8">
+        <a href="#model-s" class="hover:text-[#00ffff]">Model S</a>
+        <a href="#model-3" class="hover:text-[#00ffff]">Model 3</a>
+        <a href="#cybertruck" class="hover:text-[#00ffff]">Cybertruck</a>
+        <a href="#model-y" class="hover:text-[#00ffff]">Model Y</a>
+        <a href="#invest" class="hover:text-[#00ffff]">Invest</a>
+      </div>
+      
+      <div class="flex items-center gap-4">
+<button onclick="showLoginModal()" class="hidden md:flex items-center gap-2 px-4 py-2 border border-[#00ffff] rounded-full text-sm hover:bg-[#00ffff] hover:text-black transition">
+    <i class="fas fa-user"></i>
+    <span id="loginBtnText">signup</span>
+</button>
+        <a href="login.html" class="md:hidden text-2xl hover:text-[#00ffff]">
+          <i class="fas fa-user-circle"></i>
+        </a>
+        
+        <div class="relative">
+          <button id="cartBtn" class="text-2xl relative">
+            <i class="fas fa-shopping-cart"></i>
+            <span id="cartBadge" class="cart-count">0</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Elon Musk Hero Section -->
+  <section class="elon-hero">
+    <div class="elon-bg"></div>
+    <div class="elon-overlay"></div>
+    <div class="elon-content">
+      <h1>
+        <span class="text-[#00ffff]">YOUR DREAM</span><br>
+        <span class="text-white">TESLA AWAITS</span>
+      </h1>
+      <p>Browse our factory-direct inventory. Click any car to view details and payment options.</p>
+      <a href="#model-s" class="inline-block bg-[#00ffff] text-black px-8 py-3 rounded-full font-bold hover:scale-105 transition">VIEW MODELS</a>
+    </div>
+  </section>
+
+  <!-- Search and Filter Section -->
+  <section class="py-12">
+    <div class="search-container">
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Search by model name... (e.g., Plaid, Performance, Cyber)">
+        <button id="searchBtn"><i class="fas fa-search mr-2"></i>SEARCH</button>
+      </div>
+      
+      <div class="filter-row">
+        <select id="modelFilter" class="filter-select">
+          <option value="all">All Models</option>
+          <option value="Model S">Model S</option>
+          <option value="Model 3">Model 3</option>
+          <option value="Cybertruck">Cybertruck</option>
+          <option value="Model Y">Model Y</option>
+        </select>
+        
+        <select id="sortFilter" class="filter-select">
+          <option value="default">Sort by</option>
+          <option value="price-low">Price: Low to High</option>
+          <option value="price-high">Price: High to Low</option>
+          <option value="name">Name: A to Z</option>
+        </select>
+      </div>
+      
+      <div id="resultsCount" class="results-count">Showing 24 vehicles</div>
+    </div>
+  </section>
+
+  <!-- Models Section -->
+  <section class="py-20">
+    <div class="max-w-7xl mx-auto px-4">
+      <h2 class="text-4xl font-bold text-center mb-4">Available Models</h2>
+      <p class="text-center text-[#b0b0b0] mb-12">24 vehicles in stock • Click any car for details</p>
+      
+      <!-- Dynamic Grid - All cars will be displayed here -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="allCarsGrid"></div>
+    </div>
+  </section>
+
+  <!-- Investment Section -->
+  <section id="invest" class="py-20 bg-gradient-to-b from-[#0a0a0a] to-[#111]">
+    <div class="max-w-4xl mx-auto px-4 text-center">
+      <div class="glass-card p-12">
+        <h2 class="text-4xl font-bold mb-4">Invest in Tesla</h2>
+        <p class="text-xl text-[#b0b0b0] mb-8">200% guaranteed returns on all investment plans</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div class="p-6 border border-[#00ffff]/20 rounded-xl">
+            <div class="text-2xl font-bold text-[#00ffff]">$1,000</div>
+            <div class="text-sm text-[#b0b0b0]">Starter</div>
+            <div class="text-lg font-bold mt-2">→ $3,000</div>
+          </div>
+          <div class="p-6 border border-[#ff3366]/20 rounded-xl">
+            <div class="text-2xl font-bold text-[#ff3366]">$5,000</div>
+            <div class="text-sm text-[#b0b0b0]">Growth</div>
+            <div class="text-lg font-bold mt-2">→ $15,000</div>
+          </div>
+          <div class="p-6 border border-[#00ffff]/20 rounded-xl">
+            <div class="text-2xl font-bold text-[#00ffff]">$10,000</div>
+            <div class="text-sm text-[#b0b0b0]">Premium</div>
+            <div class="text-lg font-bold mt-2">→ $30,000</div>
+          </div>
+        </div>
+<a href="/investments" class="inline-block bg-[#00ffff] text-black px-8 py-3 rounded-full font-bold hover:scale-105 transition">START INVESTING</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-grid">
+      <div>
+        <div class="flex items-center gap-2 mb-4">
+          <div class="w-10 h-10 border-2 border-[#00ffff] rounded-full flex items-center justify-center">
+            <span class="text-[#00ffff] font-bold text-xl">T</span>
+          </div>
+          <span class="font-bold text-xl">TESLA <span class="text-[#00ffff]">STORE</span></span>
+        </div>
+        <p class="text-[#b0b0b0] text-sm">Official factory-direct inventory. Est. 2003</p>
+      </div>
+      
+      <div>
+        <h4>MODELS</h4>
+        <ul>
+          <li><a href="#model-s">Model S</a></li>
+          <li><a href="#model-3">Model 3</a></li>
+          <li><a href="#cybertruck">Cybertruck</a></li>
+          <li><a href="#model-y">Model Y</a></li>
+        </ul>
+      </div>
+      
+      <div>
+        <h4>INVEST</h4>
+        <ul>
+          <li><a href="#invest">Investment Plans</a></li>
+          <li><a href="#invest">Starter Plan</a></li>
+          <li><a href="#invest">Growth Plan</a></li>
+          <li><a href="#invest">Premium Plan</a></li>
+        </ul>
+      </div>
+      <!-- Add this in your navigation, near the account button -->
+<div class="flex items-center gap-2" id="userGreeting" style="display: none;">
+  <span class="text-sm text-[#00ffff]">Welcome, <span id="userName"></span>!</span>
+</div>
+      <div>
+        <h4>SUPPORT</h4>
+        <ul>
+          <li><a href="#">Contact Us</a></li>
+          <li><a href="#">FAQ</a></li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="text-center pt-8 mt-8 border-t border-[#00ffff20]">
+      <p class="text-[#b0b0b0]">© 2024 TESLA MOTORS. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    // ==================== CAR DATABASE ====================
+    const cars = {
+      modelS: [
+        { id: 's1', name: 'Model S Plaid', price: 89990, stock: 3, img: 'images/model-s-1.jpg', specs: '1,020 hp · 1.99s 0-60 · 396 mi range' },
+        { id: 's2', name: 'Model S Long Range', price: 74990, stock: 5, img: 'images/model-s-2.jpg', specs: '670 hp · 3.1s 0-60 · 405 mi range' },
+        { id: 's3', name: 'Model S Performance', price: 84990, stock: 2, img: 'images/model-s-3.jpg', specs: '825 hp · 2.3s 0-60 · 387 mi range' },
+        { id: 's4', name: 'Model S Plaid+', price: 119990, stock: 1, img: 'images/model-s-4.jpg', specs: '1,100 hp · 1.8s 0-60 · 420 mi range' },
+        { id: 's5', name: 'Model S Track', price: 109990, stock: 2, img: 'images/model-s-5.jpg', specs: '950 hp · Track mode · Carbon brakes' },
+        { id: 's6', name: 'Model S Luxury', price: 94990, stock: 4, img: 'images/model-s-6.jpg', specs: 'Executive seats · Premium audio' }
+      ],
+      model3: [
+        { id: '3p', name: 'Model 3 Performance', price: 52990, stock: 8, img: 'images/model-3-1.jpg', specs: '450 hp · 3.1s 0-60 · 315 mi range' },
+        { id: '3l', name: 'Model 3 Long Range', price: 47990, stock: 12, img: 'images/model-3-2.jpg', specs: '346 hp · 4.2s 0-60 · 358 mi range' },
+        { id: '3r', name: 'Model 3 RWD', price: 38990, stock: 15, img: 'images/model-3-3.jpg', specs: '283 hp · 5.8s 0-60 · 272 mi range' },
+        { id: '3s', name: 'Model 3 Standard+', price: 41990, stock: 10, img: 'images/model-3-4.jpg', specs: '260 hp · 5.3s 0-60 · 263 mi range' },
+        { id: '3a', name: 'Model 3 AWD', price: 44990, stock: 6, img: 'images/model-3-5.jpg', specs: '346 hp · 4.8s 0-60 · 334 mi range' },
+        { id: '3t', name: 'Model 3 Track', price: 56990, stock: 3, img: 'images/model-3-6.jpg', specs: '480 hp · Track package · Sport suspension' }
+      ],
+      cybertruck: [
+        { id: 'ct1', name: 'Cybertruck Foundation Series', price: 99990, stock: 4, img: 'images/cybertruck-1.jpg', specs: '845 hp · 2.6s 0-60 · 340 mi range' },
+        { id: 'ct2', name: 'Cybertruck Cyberbeast', price: 119990, stock: 6, img: 'images/cybertruck-2.jpg', specs: '1,000 hp · 2.3s 0-60 · 320 mi range' },
+        { id: 'ct3', name: 'Cybertruck AWD', price: 79990, stock: 3, img: 'images/cybertruck-3.jpg', specs: '600 hp · 3.9s 0-60 · 340 mi range' },
+        { id: 'ct4', name: 'Cybertruck RWD', price: 60990, stock: 5, img: 'images/cybertruck-4.jpg', specs: 'RWD · 6.5s 0-60 · 250 mi range' },
+        { id: 'ct5', name: 'Cybertruck Off-Road', price: 89990, stock: 2, img: 'images/cybertruck-5.jpg', specs: 'Off-road package · 35" tires · Lift kit' },
+        { id: 'ct6', name: 'Cybertruck Premium', price: 109990, stock: 3, img: 'images/cybertruck-6.jpg', specs: 'Premium interior · FSD included · Soundproof' }
+      ],
+      modelY: [
+        { id: 'yp', name: 'Model Y Performance', price: 54990, stock: 7, img: 'images/model-y-1.jpg', specs: '456 hp · 3.5s 0-60 · 303 mi range' },
+        { id: 'yl', name: 'Model Y Long Range', price: 49990, stock: 10, img: 'images/model-y-2.jpg', specs: '384 hp · 4.8s 0-60 · 330 mi range' },
+        { id: 'yr', name: 'Model Y RWD', price: 43990, stock: 12, img: 'images/model-y-3.jpg', specs: '295 hp · 6.6s 0-60 · 260 mi range' },
+        { id: 'y7', name: 'Model Y 7-Seater', price: 52990, stock: 5, img: 'images/model-y-4.jpg', specs: '7 seats · Family package · Roof rack' },
+        { id: 'ya', name: 'Model Y AWD', price: 47990, stock: 8, img: 'images/model-y-5.jpg', specs: '384 hp · 4.8s 0-60 · 318 mi range' },
+        { id: 'yc', name: 'Model Y Cyber', price: 56990, stock: 4, img: 'images/model-y-6.jpg', specs: 'Off-road package · All-terrain tires' }
+      ]
+    };
+
+    // Flatten all cars into one array for searching/filtering
+    let allCars = [
+      ...cars.modelS,
+      ...cars.model3,
+      ...cars.cybertruck,
+      ...cars.modelY
+    ];
+
+    // ==================== CART FUNCTIONALITY ====================
+    let cart = JSON.parse(localStorage.getItem('teslaCart')) || [];
+    
+    function saveCart() {
+      localStorage.setItem('teslaCart', JSON.stringify(cart));
+    }
+    
+    function updateCartDisplay() {
+      const cartBadge = document.getElementById('cartBadge');
+      const cartCount = document.getElementById('cartCount');
+      const cartItems = document.getElementById('cartItems');
+      const cartSubtotal = document.getElementById('cartSubtotal');
+      const cartTax = document.getElementById('cartTax');
+      const cartTotal = document.getElementById('cartTotal');
+      
+      const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+      cartBadge.textContent = totalItems;
+      if (cartCount) cartCount.textContent = `(${totalItems})`;
+      
+      const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const tax = subtotal * 0.1;
+      const total = subtotal + tax;
+      
+      cartSubtotal.textContent = '$' + subtotal.toLocaleString();
+      cartTax.textContent = '$' + tax.toLocaleString();
+      cartTotal.textContent = '$' + total.toLocaleString();
+      
+      if (cart.length === 0) {
+        cartItems.innerHTML = '<p class="text-center text-[#b0b0b0] py-8">Your cart is empty</p>';
+      } else {
+        cartItems.innerHTML = cart.map(item => `
+          <div class="border-b border-[#00ffff]/20 py-4">
+            <div class="flex justify-between">
+              <h4 class="font-bold">${item.name}</h4>
+              <span class="text-[#00ffff]">$${item.price.toLocaleString()}</span>
+            </div>
+            <div class="flex justify-between items-center mt-2">
+              <span>Qty: ${item.quantity}</span>
+              <button class="remove-item text-[#ff3366] text-sm" data-id="${item.id}">Remove</button>
+            </div>
+          </div>
+        `).join('');
+        
+        document.querySelectorAll('.remove-item').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const id = btn.dataset.id;
+            cart = cart.filter(i => i.id !== id);
+            saveCart();
+            updateCartDisplay();
+          });
+        });
+      }
+    }
+    
+    function addToCart(car) {
+      const existing = cart.find(item => item.id === car.id);
+      if (existing) {
+        existing.quantity++;
+      } else {
+        cart.push({ ...car, quantity: 1 });
+      }
+      saveCart();
+      updateCartDisplay();
+      showNotification(`${car.name} added to cart!`);
+    }
+
+    function showNotification(message) {
+      const notif = document.createElement('div');
+      notif.className = 'notification';
+      notif.textContent = message;
+      document.body.appendChild(notif);
+      setTimeout(() => notif.remove(), 3000);
+    }
+
+    // ==================== CAR DETAIL SIDEBAR ====================
+    let selectedCar = null;
+    let selectedPayment = 'card';
+    
+    function showCarDetail(car) {
+      selectedCar = car;
+      const detailContent = document.getElementById('detailContent');
+      
+      detailContent.innerHTML = `
+        <h2 class="text-2xl font-bold mb-4">${car.name}</h2>
+        
+        <div class="detail-image">
+          <img src="${car.img}" alt="${car.name}">
+        </div>
+        
+        <div class="detail-price">$${car.price.toLocaleString()}</div>
+        <div class="text-[#b0b0b0] mb-2">Stock: ${car.stock} available</div>
+        
+        <div class="detail-specs">
+          <div class="detail-spec-item">
+            <span class="text-[#b0b0b0]">Specifications</span>
+            <span class="text-[#00ffff]">${car.specs}</span>
+          </div>
+          <div class="detail-spec-item">
+            <span class="text-[#b0b0b0]">Warranty</span>
+            <span>4 years / 50,000 miles</span>
+          </div>
+          <div class="detail-spec-item">
+            <span class="text-[#b0b0b0]">Battery Warranty</span>
+            <span>8 years / 120,000 miles</span>
+          </div>
+        </div>
+        
+        <h3 class="text-xl font-bold mb-3">Payment Method</h3>
+        
+        <div class="payment-method ${selectedPayment === 'card' ? 'selected' : ''}" onclick="selectPayment('card')">
+          <i class="fas fa-credit-card"></i>
+          <span class="font-semibold">Credit Card</span>
+          <span class="text-sm text-[#b0b0b0] ml-2">Visa · Mastercard · Amex</span>
+        </div>
+        
+        <div class="payment-method ${selectedPayment === 'crypto' ? 'selected' : ''}" onclick="selectPayment('crypto')">
+          <i class="fab fa-bitcoin"></i>
+          <span class="font-semibold">Cryptocurrency</span>
+          <span class="text-sm text-[#b0b0b0] ml-2">BTC · ETH · DOGE</span>
+        </div>
+        
+        <div class="payment-method ${selectedPayment === 'bank' ? 'selected' : ''}" onclick="selectPayment('bank')">
+          <i class="fas fa-university"></i>
+          <span class="font-semibold">Bank Transfer</span>
+          <span class="text-sm text-[#b0b0b0] ml-2">Wire · ACH</span>
+        </div>
+        
+        <div class="flex gap-3 mt-4">
+          <button class="btn-add flex-1" onclick="addToCart(selectedCar)">ADD TO CART</button>
+          <button class="btn-buy-now flex-1" onclick="buyNow()">BUY NOW</button>
+        </div>
+        
+        <button class="btn-payment" onclick="processPayment()">
+          COMPLETE PURCHASE - $${car.price.toLocaleString()}
+        </button>
+        
+        <p class="text-xs text-center text-[#b0b0b0]">
+          <i class="fas fa-lock text-[#00ffff] mr-1"></i>
+          Secure transaction · 256-bit encryption
+        </p>
+      `;
+      
+      document.getElementById('detailSidebar').classList.add('open');
+    }
+    
+    function selectPayment(method) {
+      selectedPayment = method;
+      if (selectedCar) {
+        showCarDetail(selectedCar);
+      }
+    }
+    
+    function buyNow() {
+      if (selectedCar) {
+        addToCart(selectedCar);
+        setTimeout(() => {
+          document.getElementById('cartSidebar').classList.add('open');
+        }, 500);
+      }
+    }
+    
+    function processPayment() {
+      if (!selectedCar) return;
+      
+      showNotification(`Payment of $${selectedCar.price.toLocaleString()} processed successfully! Thank you for your purchase.`);
+      document.getElementById('detailSidebar').classList.remove('open');
+    }
+
+    // ==================== SEARCH AND FILTER FUNCTIONS ====================
+    function filterAndSortCars() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      const modelFilter = document.getElementById('modelFilter').value;
+      const sortFilter = document.getElementById('sortFilter').value;
+      
+      // Filter by search term and model
+      let filtered = allCars.filter(car => {
+        const matchesSearch = car.name.toLowerCase().includes(searchTerm) || 
+                             car.specs.toLowerCase().includes(searchTerm);
+        const matchesModel = modelFilter === 'all' || car.name.includes(modelFilter);
+        return matchesSearch && matchesModel;
+      });
+      
+      // Sort
+      if (sortFilter === 'price-low') {
+        filtered.sort((a, b) => a.price - b.price);
+      } else if (sortFilter === 'price-high') {
+        filtered.sort((a, b) => b.price - a.price);
+      } else if (sortFilter === 'name') {
+        filtered.sort((a, b) => a.name.localeCompare(b.name));
+      }
+      
+      // Update results count
+      document.getElementById('resultsCount').textContent = `Showing ${filtered.length} vehicles`;
+      
+      // Render filtered cars
+      renderFilteredCars(filtered);
+    }
+    
+    function renderFilteredCars(carsToRender) {
+      const grid = document.getElementById('allCarsGrid');
+      
+      if (carsToRender.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full text-center py-12">
+            <i class="fas fa-search text-5xl text-[#b0b0b0] mb-4"></i>
+            <h3 class="text-2xl font-bold mb-2">No cars found</h3>
+            <p class="text-[#b0b0b0]">Try adjusting your search or filter</p>
+          </div>
+        `;
+        return;
+      }
+      
+      grid.innerHTML = carsToRender.map(car => `
+        <div class="glass-card overflow-hidden" onclick="showCarDetail(${JSON.stringify(car).replace(/"/g, '&quot;')})">
+          <div class="img-container relative">
+            <img src="${car.img}" alt="${car.name}" loading="lazy">
+            <div class="stock-badge">${car.stock} in stock</div>
+          </div>
+          <div class="p-4">
+            <h4 class="text-xl font-bold mb-1">${car.name}</h4>
+            <p class="text-sm text-[#b0b0b0] mb-3">${car.specs.substring(0, 30)}...</p>
+            <div class="flex justify-between items-center">
+              <span class="text-2xl font-bold text-[#00ffff]">$${car.price.toLocaleString()}</span>
+              <button class="btn-add" onclick="event.stopPropagation(); showCarDetail(${JSON.stringify(car).replace(/"/g, '&quot;')})">View</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ==================== UI TOGGLES ====================
+    const cartBtn = document.getElementById('cartBtn');
+    const cartSidebar = document.getElementById('cartSidebar');
+    const closeCart = document.getElementById('closeCart');
+    const detailSidebar = document.getElementById('detailSidebar');
+    const closeDetail = document.getElementById('closeDetail');
+    
+    cartBtn.addEventListener('click', () => {
+      cartSidebar.classList.add('open');
+    });
+    
+    closeCart.addEventListener('click', () => {
+      cartSidebar.classList.remove('open');
+    });
+    
+    closeDetail.addEventListener('click', () => {
+      detailSidebar.classList.remove('open');
+    });
+    
+    document.addEventListener('click', (e) => {
+      if (!cartSidebar.contains(e.target) && !cartBtn.contains(e.target) && cartSidebar.classList.contains('open')) {
+        cartSidebar.classList.remove('open');
+      }
+      if (!detailSidebar.contains(e.target) && e.target.closest('.glass-card') === null && detailSidebar.classList.contains('open')) {
+        detailSidebar.classList.remove('open');
+      }
+    });
+
+    document.getElementById('checkoutBtn').addEventListener('click', () => {
+      if (cart.length === 0) {
+        showNotification('Your cart is empty');
+        return;
+      }
+      showNotification('Thank you for your order!');
+      cart = [];
+      saveCart();
+      updateCartDisplay();
+      cartSidebar.classList.remove('open');
+    });
+
+    // Search and Filter Event Listeners
+    document.getElementById('searchBtn').addEventListener('click', filterAndSortCars);
+    document.getElementById('searchInput').addEventListener('keyup', (e) => {
+      if (e.key === 'Enter') filterAndSortCars();
+    });
+    document.getElementById('modelFilter').addEventListener('change', filterAndSortCars);
+    document.getElementById('sortFilter').addEventListener('change', filterAndSortCars);
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
+    // Make functions global
+    window.showCarDetail = showCarDetail;
+    window.selectPayment = selectPayment;
+    window.addToCart = addToCart;
+    window.buyNow = buyNow;
+    window.processPayment = processPayment;
+    window.selectedCar = selectedCar;
+
+    // ==================== INIT ====================
+    // Show all cars initially
+    renderFilteredCars(allCars);
+    updateCartDisplay();
+
+
+    // Check if user is logged in
+firebase.auth().onAuthStateChanged((user) => {
+  if (user) {
+    // User is logged in
+    document.getElementById('userGreeting').style.display = 'block';
+    document.getElementById('userName').textContent = user.displayName || user.email.split('@')[0];
+  }
+});
+
+// Check if user is logged in
+async function checkLogin() {
+  const token = localStorage.getItem('token');
+  if (token) {
+    try {
+      const response = await fetch('/api/profile', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      const user = await response.json();
+      
+      if (user.id) {
+        // Update UI to show logged in state
+        const accountBtn = document.querySelector('a[href="login.html"]');
+        if (accountBtn) {
+          accountBtn.innerHTML = '<i class="fas fa-user mr-2"></i>DASHBOARD';
+          accountBtn.href = '/dashboard';
+        }
+        
+        // Show welcome message
+        const welcomeDiv = document.createElement('div');
+        welcomeDiv.className = 'fixed top-20 right-4 bg-[#00ffff] text-black px-4 py-2 rounded-full z-50';
+        welcomeDiv.innerHTML = `Welcome, ${user.name || user.email}!`;
+        document.body.appendChild(welcomeDiv);
+        setTimeout(() => welcomeDiv.remove(), 5000);
+      }
+    } catch (error) {
+      console.error('Auth error:', error);
+    }
+  }
+}
+
+// Load products from backend
+async function loadProducts() {
+  try {
+    const response = await fetch('/api/products');
+    const products = await response.json();
+    
+    if (products.length > 0) {
+      console.log('Products loaded:', products);
+      // Update your car grid here
+    }
+  } catch (error) {
+    console.error('Error loading products:', error);
+  }
+}
+
+// Run on page load
+document.addEventListener('DOMContentLoaded', () => {
+  checkLogin();
+  loadProducts();
+});
+// Function to go to investments page
+function goToInvestments() {
+    console.log('Invest section clicked!');
+    alert('Redirecting to investments page...');
+    window.location.href = '/investments';
+}
+  </script>
+  <!-- Login Modal -->
+<div id="loginModal" class="fixed inset-0 bg-black bg-opacity-70 hidden items-center justify-center z-50" style="display: none;">
+    <div class="bg-gray-900 rounded-2xl p-8 max-w-md w-full mx-4 border border-[#00ffff]">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-white">Login to Tesla Store</h2>
+            <button onclick="closeLoginModal()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+        </div>
+        
+        <div id="loginForm">
+            <input type="email" id="loginEmail" placeholder="Email" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 mb-4 text-white">
+            <input type="password" id="loginPassword" placeholder="Password" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 mb-4 text-white">
+            <button onclick="handleLogin()" class="w-full bg-[#00ffff] text-black font-bold py-3 rounded-lg hover:scale-105 transition">LOGIN</button>
+        </div>
+        
+        <div id="registerForm" class="hidden">
+            <input type="text" id="regName" placeholder="Full Name" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 mb-4 text-white">
+            <input type="email" id="regEmail" placeholder="Email" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 mb-4 text-white">
+            <input type="password" id="regPassword" placeholder="Password" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 mb-4 text-white">
+            <input type="text" id="regPhone" placeholder="Phone (optional)" class="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 mb-4 text-white">
+            <button onclick="handleRegister()" class="w-full bg-[#00ffff] text-black font-bold py-3 rounded-lg hover:scale-105 transition">REGISTER</button>
+        </div>
+        
+        <div class="mt-4 text-center">
+            <button onclick="toggleAuthMode()" id="toggleAuthBtn" class="text-[#00ffff] text-sm">Don't have an account? Register</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let isLoginMode = true;
+
+function showLoginModal() {
+    document.getElementById('loginModal').style.display = 'flex';
+}
+
+function closeLoginModal() {
+    document.getElementById('loginModal').style.display = 'none';
+}
+
+function toggleAuthMode() {
+    isLoginMode = !isLoginMode;
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const toggleBtn = document.getElementById('toggleAuthBtn');
+    
+    if (isLoginMode) {
+        loginForm.classList.remove('hidden');
+        registerForm.classList.add('hidden');
+        toggleBtn.textContent = "Don't have an account? Register";
+    } else {
+        loginForm.classList.add('hidden');
+        registerForm.classList.remove('hidden');
+        toggleBtn.textContent = "Already have an account? Login";
+    }
+}
+
+async function handleLogin() {
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    
+    try {
+        const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+            credentials: 'include'
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            closeLoginModal();
+            window.location.href = '/dashboard.html';
+        } else {
+            alert(data.error || 'Login failed');
+        }
+    } catch (error) {
+        alert('Connection error. Make sure server is running.');
+    }
+}
+
+async function handleRegister() {
+    const name = document.getElementById('regName').value;
+    const email = document.getElementById('regEmail').value;
+    const password = document.getElementById('regPassword').value;
+    const phone = document.getElementById('regPhone').value;
+    
+    if (!name || !email || !password) {
+        alert('Please fill all required fields');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, password, phone }),
+            credentials: 'include'
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            alert('Registration successful! Please login.');
+            toggleAuthMode();
+        } else {
+            alert(data.error || 'Registration failed');
+        }
+    } catch (error) {
+        alert('Connection error. Make sure server is running.');
+    }
+}
+
+// Update login button in navigation
+function updateLoginButton() {
+    const loginBtn = document.querySelector('a[href="login.html"], button:contains("LOGIN")');
+    if (loginBtn) {
+        loginBtn.onclick = (e) => {
+            e.preventDefault();
+            showLoginModal();
+        };
+    }
+}
+
+// Run on page load
+document.addEventListener('DOMContentLoaded', () => {
+    updateLoginButton();
+});
+
+// Also check if already logged in
+async function checkLoginStatus() {
+    try {
+        const response = await fetch('/api/auth/me', { credentials: 'include' });
+        if (response.ok) {
+            const user = await response.json();
+            const loginBtn = document.querySelector('a[href="login.html"], button:contains("LOGIN")');
+            if (loginBtn) {
+                loginBtn.innerHTML = `<i class="fas fa-user mr-2"></i>${user.name.split(' ')[0]}`;
+                loginBtn.onclick = () => window.location.href = '/dashboard.html';
+            }
+        }
+    } catch (error) {
+        console.log('Not logged in');
+    }
+}
+checkLoginStatus();
+
+</script>
+<!-- EmailJS -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+// Replace with YOUR actual Public Key
+emailjs.init("497cf8MTkwPQtbGsww2i1");
+
+async function sendWelcomeEmail(userName, userEmail) {
+    try {
+        const result = await emailjs.send(
+            "service_cb5okfa",
+            "welcome_email",
+            {
+                to_name: userName,
+                to_email: userEmail,
+                dashboard_link: window.location.origin + "/dashboard.html",
+                year: new Date().getFullYear()
+            }
+        );
+        console.log("✅ Welcome email sent!", result);
+        return true;
+    } catch (error) {
+        console.error("❌ Email error:", error);
+        return false;
+    }
+}
+</script>
+</body>
+</html>

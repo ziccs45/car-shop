@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dashboard | Tesla Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+        body { background: #0a0a0a; color: white; }
+        
+        .glass-card {
+            background: rgba(20, 20, 30, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 255, 0.1);
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+        }
+        .glass-card:hover {
+            border-color: #00ffff;
+            transform: translateY(-5px);
+            box-shadow: 0 20px 30px -10px #00ffff80;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(255, 51, 102, 0.1));
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: #00ffff;
+        }
+        
+        .nav-bar {
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 50;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #00ffff, #ff3366);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 2rem;
+            color: black;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 1.5px solid #00ffff;
+            padding: 0.7rem 1.5rem;
+            border-radius: 2rem;
+            color: #00ffff;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .btn-secondary:hover {
+            background: #00ffff;
+            color: black;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+        }
+        
+        .btn-checkout {
+            background: linear-gradient(135deg, #ff3366, #00ffff);
+            border: none;
+            padding: 0.75rem 1.8rem;
+            border-radius: 2rem;
+            color: black;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-checkout:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(255, 51, 102, 0.5);
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .status-pending { background: rgba(255, 193, 7, 0.2); color: #ffc107; border: 1px solid #ffc107; }
+        .status-processing { background: rgba(0, 255, 255, 0.2); color: #00ffff; border: 1px solid #00ffff; }
+        .status-completed { background: rgba(0, 255, 0, 0.2); color: #00ff00; border: 1px solid #00ff00; }
+        .status-cancelled { background: rgba(255, 0, 0, 0.2); color: #ff3366; border: 1px solid #ff3366; }
+        
+        .profile-field {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            transition: all 0.3s ease;
+        }
+        .profile-field:hover {
+            border-color: #00ffff;
+            background: rgba(0, 255, 255, 0.05);
+            transform: translateX(5px);
+        }
+        
+        .order-card, .wishlist-card {
+            background: rgba(20, 20, 30, 0.5);
+            border: 1px solid rgba(0, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 1rem;
+            transition: all 0.3s ease;
+        }
+        .order-card:hover, .wishlist-card:hover {
+            border-color: #00ffff;
+            transform: translateX(5px);
+        }
+        
+        .edit-icon { color: #00ffff; cursor: pointer; transition: all 0.3s ease; }
+        .edit-icon:hover { transform: scale(1.1); text-shadow: 0 0 10px #00ffff; }
+        
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #00ffff;
+            color: #0a0a0a;
+            padding: 1rem 2rem;
+            border-radius: 3rem;
+            font-weight: 600;
+            z-index: 9999;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .spinner {
+            border: 3px solid rgba(0, 255, 255, 0.1);
+            border-top: 3px solid #00ffff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 1rem auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .hidden { display: none; }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .action-card {
+            background: rgba(20, 20, 30, 0.5);
+            border: 1px solid rgba(0, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .action-card:hover {
+            border-color: #00ffff;
+            transform: translateY(-3px);
+        }
+        .action-card i { font-size: 2rem; color: #00ffff; margin-bottom: 0.5rem; }
+        
+        @media (max-width: 768px) {
+            .stat-card { padding: 1rem; }
+            .stat-card h3 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="nav-bar">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 border-2 border-[#00ffff] rounded-full flex items-center justify-center">
+                    <span class="text-[#00ffff] font-bold">T</span>
+                </div>
+                <span class="font-bold text-xl">TESLA <span class="text-[#00ffff]">STORE</span></span>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="/" class="text-sm hover:text-[#00ffff] transition"><i class="fas fa-home mr-1"></i> Home</a>
+                <button id="checkoutNavBtn" class="btn-checkout" onclick="goToCheckout()">
+                    <i class="fas fa-shopping-cart"></i> Checkout
+                </button>
+                <button id="logoutBtn" class="bg-red-500/20 border border-red-500 text-red-500 px-4 py-2 rounded-full text-sm hover:bg-red-500 hover:text-black transition">
+                    <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="pt-28 pb-12 px-4">
+        <div class="max-w-7xl mx-auto">
+
+            <!-- Welcome Section -->
+            <div class="glass-card p-8 mb-8">
+                <div class="flex justify-between items-start flex-wrap gap-4">
+                    <div>
+                        <h1 class="text-3xl font-bold mb-2">Welcome back, <span id="userName" class="text-[#00ffff]">User</span>!</h1>
+                        <p class="text-[#b0b0b0]">Manage your account, track orders, and save your favorite cars</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <a href="/" class="btn-secondary"><i class="fas fa-car mr-2"></i>Browse Cars</a>
+                        <button onclick="goToCheckout()" class="btn-checkout">
+                            <i class="fas fa-shopping-cart mr-2"></i> Checkout Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <div class="action-card" onclick="document.getElementById('ordersTab').scrollIntoView({ behavior: 'smooth' })">
+                    <i class="fas fa-shopping-bag"></i>
+                    <p class="font-semibold">My Orders</p>
+                    <p class="text-xs text-[#b0b0b0]">Track your purchases</p>
+                </div>
+                <div class="action-card" onclick="document.getElementById('wishlistTab').scrollIntoView({ behavior: 'smooth' })">
+                    <i class="fas fa-heart"></i>
+                    <p class="font-semibold">Wishlist</p>
+                    <p class="text-xs text-[#b0b0b0]">Saved vehicles</p>
+                </div>
+                <div class="action-card" onclick="document.getElementById('profileTab').scrollIntoView({ behavior: 'smooth' })">
+                    <i class="fas fa-user"></i>
+                    <p class="font-semibold">Profile</p>
+                    <p class="text-xs text-[#b0b0b0]">Account details</p>
+                </div>
+                <div class="action-card" onclick="goToCheckout()">
+                    <i class="fas fa-credit-card"></i>
+                    <p class="font-semibold">Checkout</p>
+                    <p class="text-xs text-[#b0b0b0]">Complete purchase</p>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="stat-card"><i class="fas fa-shopping-cart text-3xl text-[#00ffff] mb-3"></i><h3 class="text-2xl font-bold" id="orderCount">0</h3><p class="text-[#b0b0b0] text-sm">Total Orders</p></div>
+                <div class="stat-card"><i class="fas fa-heart text-3xl text-[#ff3366] mb-3"></i><h3 class="text-2xl font-bold" id="wishlistCount">0</h3><p class="text-[#b0b0b0] text-sm">Saved Cars</p></div>
+                <div class="stat-card"><i class="fas fa-dollar-sign text-3xl text-[#00ffff] mb-3"></i><h3 class="text-2xl font-bold" id="totalSpent">$0</h3><p class="text-[#b0b0b0] text-sm">Total Spent</p></div>
+                <div class="stat-card"><i class="fas fa-calendar-alt text-3xl text-[#00ffff] mb-3"></i><h3 class="text-2xl font-bold" id="memberSince">-</h3><p class="text-[#b0b0b0] text-sm">Member Since</p></div>
+            </div>
+
+            <!-- Orders Section -->
+            <div id="ordersTab" class="glass-card p-6 mb-6">
+                <div class="flex justify-between items-center mb-6 flex-wrap gap-3">
+                    <div>
+                        <h2 class="text-2xl font-bold"><i class="fas fa-shopping-bag text-[#00ffff] mr-2"></i>My Orders</h2>
+                        <p class="text-[#b0b0b0] text-sm">Track and manage your orders</p>
+                    </div>
+                    <select id="orderFilter" onchange="filterOrders()" class="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm">
+                        <option value="all">All Orders</option>
+                        <option value="pending">Pending</option>
+                        <option value="processing">Processing</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <div id="ordersList" class="space-y-4 max-h-96 overflow-y-auto">
+                    <div class="text-center py-12"><div class="spinner mx-auto"></div><p class="mt-4 text-[#b0b0b0]">Loading orders...</p></div>
+                </div>
+            </div>
+
+            <!-- Wishlist Section -->
+            <div id="wishlistTab" class="glass-card p-6 mb-6">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold"><i class="fas fa-heart text-[#ff3366] mr-2"></i>My Wishlist</h2>
+                    <p class="text-[#b0b0b0] text-sm">Your favorite Tesla models</p>
+                </div>
+                <div id="wishlistGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="text-center py-12 col-span-full"><div class="spinner mx-auto"></div><p class="mt-4 text-[#b0b0b0]">Loading wishlist...</p></div>
+                </div>
+            </div>
+
+            <!-- Profile Section -->
+            <div id="profileTab" class="glass-card p-6">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold"><i class="fas fa-user text-[#00ffff] mr-2"></i>Profile Information</h2>
+                    <p class="text-[#b0b0b0] text-sm">View and manage your account details</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="profile-field">
+                        <div class="flex justify-between items-start">
+                            <div><div class="text-sm text-[#b0b0b0] uppercase tracking-wider">Full Name</div><div class="text-xl font-semibold mt-1" id="profileName">-</div></div>
+                            <i class="fas fa-pencil-alt edit-icon" onclick="editField('name')"></i>
+                        </div>
+                    </div>
+                    <div class="profile-field">
+                        <div class="flex justify-between items-start">
+                            <div><div class="text-sm text-[#b0b0b0] uppercase tracking-wider">Email Address</div><div class="text-xl font-semibold mt-1" id="profileEmail">-</div></div>
+                            <i class="fas fa-pencil-alt edit-icon" onclick="editField('email')"></i>
+                        </div>
+                    </div>
+                    <div class="profile-field">
+                        <div class="flex justify-between items-start">
+                            <div><div class="text-sm text-[#b0b0b0] uppercase tracking-wider">Phone Number</div><div class="text-xl font-semibold mt-1" id="profilePhone">-</div></div>
+                            <i class="fas fa-pencil-alt edit-icon" onclick="editField('phone')"></i>
+                        </div>
+                    </div>
+                    <div class="profile-field">
+                        <div><div class="text-sm text-[#b0b0b0] uppercase tracking-wider">Account Type</div><div class="text-xl font-semibold mt-1" id="profileRole">-</div></div>
+                    </div>
+                    <div class="profile-field md:col-span-2">
+                        <div class="flex justify-between items-start">
+                            <div><div class="text-sm text-[#b0b0b0] uppercase tracking-wider">Delivery Address</div><div class="text-lg font-semibold mt-1" id="profileAddress">Not set</div></div>
+                            <i class="fas fa-pencil-alt edit-icon" onclick="editField('address')"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let allOrders = [];
+        let currentOrderFilter = 'all';
+
+        function showNotification(message, isError = false) {
+            const notif = document.createElement('div');
+            notif.className = 'notification';
+            notif.style.background = isError ? '#ff3366' : '#00ffff';
+            notif.textContent = message;
+            document.body.appendChild(notif);
+            setTimeout(() => notif.remove(), 3000);
+        }
+
+        function goToCheckout() {
+            // Check if cart has items
+            const cart = JSON.parse(localStorage.getItem('teslaCart')) || [];
+            if (cart.length === 0) {
+                showNotification('Your cart is empty. Add items to cart first!', true);
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 1500);
+                return;
+            }
+            window.location.href = '/checkout.html';
+        }
+
+        function filterOrders() {
+            currentOrderFilter = document.getElementById('orderFilter').value;
+            renderOrders();
+        }
+
+        function renderOrders() {
+            let filtered = allOrders;
+            if (currentOrderFilter !== 'all') {
+                filtered = allOrders.filter(o => o.status === currentOrderFilter);
+            }
+            
+            const ordersDiv = document.getElementById('ordersList');
+            if (filtered.length === 0) {
+                ordersDiv.innerHTML = `
+                    <div class="text-center py-12">
+                        <i class="fas fa-shopping-bag text-5xl text-[#b0b0b0] mb-4"></i>
+                        <h3 class="text-xl font-bold mb-2">No orders found</h3>
+                        <p class="text-[#b0b0b0]">Start shopping to see your orders here</p>
+                        <button onclick="window.location.href='/'" class="btn-primary mt-4">Browse Cars →</button>
+                    </div>
+                `;
+                return;
+            }
+            
+            ordersDiv.innerHTML = filtered.map(order => `
+                <div class="order-card">
+                    <div class="flex justify-between items-start flex-wrap gap-3">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-2 flex-wrap">
+                                <i class="fas fa-car text-[#00ffff] text-xl"></i>
+                                <h4 class="font-bold text-lg">${order.cars?.title || order.cars?.brand + ' ' + order.cars?.model || 'Tesla Vehicle'}</h4>
+                                <span class="status-badge status-${order.status}">${order.status?.toUpperCase() || 'PENDING'}</span>
+                            </div>
+                            <div class="text-sm text-[#b0b0b0] flex flex-wrap gap-4">
+                                <span><i class="far fa-hashtag mr-1"></i>Order #${order.id}</span>
+                                <span><i class="far fa-calendar-alt mr-1"></i>${new Date(order.created_at).toLocaleDateString()}</span>
+                                <span><i class="fas fa-credit-card mr-1"></i>${order.payment_method || 'Credit Card'}</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-2xl font-bold text-[#00ffff]">$${(order.total_amount || 0).toLocaleString()}</div>
+                            <button onclick="trackOrder(${order.id})" class="text-xs text-[#00ffff] hover:underline mt-1">Track Order →</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function trackOrder(orderId) {
+            showNotification(`Order #${orderId} is being processed. You'll receive updates via email.`);
+        }
+
+        async function loadDashboard() {
+            try {
+                const response = await fetch('/api/auth/me', { credentials: 'include' });
+                if (!response.ok) {
+                    window.location.href = '/';
+                    return;
+                }
+                
+                currentUser = await response.json();
+                document.getElementById('userName').textContent = currentUser.name;
+                document.getElementById('profileName').textContent = currentUser.name;
+                document.getElementById('profileEmail').textContent = currentUser.email;
+                document.getElementById('profilePhone').textContent = currentUser.phone || 'Not set';
+                document.getElementById('profileRole').textContent = currentUser.role === 'admin' ? 'Admin Account' : 'Premium Member';
+                document.getElementById('profileAddress').textContent = currentUser.address || 'Not set';
+                document.getElementById('memberSince').textContent = currentUser.created_at ? new Date(currentUser.created_at).toLocaleDateString() : '2024';
+                
+                // Load orders
+                const ordersRes = await fetch('/api/user/orders', { credentials: 'include' });
+                allOrders = await ordersRes.json();
+                document.getElementById('orderCount').textContent = allOrders.length;
+                
+                const totalSpent = allOrders.reduce((sum, o) => sum + (o.total_amount || 0), 0);
+                document.getElementById('totalSpent').textContent = '$' + totalSpent.toLocaleString();
+                
+                renderOrders();
+                
+                // Load wishlist
+                const wishlistRes = await fetch('/api/user/wishlist', { credentials: 'include' });
+                const wishlist = await wishlistRes.json();
+                document.getElementById('wishlistCount').textContent = wishlist.length;
+                
+                const wishlistGrid = document.getElementById('wishlistGrid');
+                if (wishlist.length === 0) {
+                    wishlistGrid.innerHTML = `
+                        <div class="text-center py-12 col-span-full">
+                            <i class="fas fa-heart text-5xl text-[#b0b0b0] mb-4"></i>
+                            <h3 class="text-xl font-bold mb-2">Your wishlist is empty</h3>
+                            <p class="text-[#b0b0b0]">Save your favorite cars here</p>
+                            <button onclick="window.location.href='/'" class="btn-primary mt-4">Browse Cars →</button>
+                        </div>
+                    `;
+                } else {
+                    wishlistGrid.innerHTML = wishlist.map(item => `
+                        <div class="wishlist-card">
+                            <img src="https://via.placeholder.com/400x200/1a1a1a/00ffff?text=Tesla" class="w-full h-40 object-cover rounded-t-lg" alt="${item.cars?.title}">
+                            <div class="p-4">
+                                <h4 class="font-bold text-lg mb-1">${item.cars?.title || item.cars?.brand + ' ' + item.cars?.model || 'Tesla Model'}</h4>
+                                <p class="text-sm text-[#b0b0b0] mb-2">${item.cars?.year || '2024'} • ${item.cars?.fuel_type || 'Electric'}</p>
+                                <p class="text-[#00ffff] text-xl font-bold mb-3">$${(item.cars?.price || 0).toLocaleString()}</p>
+                                <div class="flex gap-2">
+                                    <button onclick="viewCar(${item.cars?.id})" class="flex-1 btn-secondary text-sm py-2">View Details</button>
+                                    <button onclick="removeFromWishlist(${item.cars?.id})" class="btn-secondary text-sm py-2 px-3" style="border-color:#ff3366; color:#ff3366">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Error loading dashboard', true);
+            }
+        }
+
+        async function removeFromWishlist(carId) {
+            try {
+                const response = await fetch(`/api/user/wishlist/${carId}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+                if (response.ok) {
+                    showNotification('Removed from wishlist');
+                    loadDashboard();
+                }
+            } catch (error) {
+                showNotification('Failed to remove', true);
+            }
+        }
+
+        function viewCar(carId) {
+            window.location.href = `/?car=${carId}`;
+        }
+
+        async function editField(field) {
+            const newValue = prompt(`Enter new ${field}:`, currentUser[field] || '');
+            if (newValue && newValue !== currentUser[field]) {
+                try {
+                    const updateData = {};
+                    updateData[field] = newValue;
+                    const response = await fetch('/api/user/profile', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(updateData),
+                        credentials: 'include'
+                    });
+                    if (response.ok) {
+                        currentUser[field] = newValue;
+                        loadDashboard();
+                        showNotification(`${field} updated successfully!`);
+                    } else {
+                        showNotification('Update failed', true);
+                    }
+                } catch (error) {
+                    showNotification('Update failed', true);
+                }
+            }
+        }
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+            window.location.href = '/';
+        });
+
+        loadDashboard();
+    </script>
+</body>
+</html>

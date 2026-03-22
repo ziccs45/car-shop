@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Dashboard | Tesla Store</title>
+    <style>
+        body {
+            background: #0a0a0a;
+            color: white;
+            font-family: Arial;
+            margin: 0;
+            padding: 20px;
+        }
+        .header {
+            background: #1a1a1a;
+            padding: 20px;
+            border-bottom: 1px solid #00ffff;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #333;
+        }
+        button {
+            background: #ff3366;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .logout-btn {
+            background: #ff3366;
+        }
+        .info {
+            color: #00ffff;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>My Dashboard</h1>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+    
+    <div class="card">
+        <h2>Welcome, <span id="userName" class="info">Loading...</span></h2>
+        <p>Email: <span id="userEmail">-</span></p>
+        <p>Phone: <span id="userPhone">-</span></p>
+        <p>Member Since: <span id="memberSince">-</span></p>
+        <p>Role: <span id="userRole">-</span></p>
+    </div>
+    
+    <div class="card">
+        <h3>My Orders</h3>
+        <div id="orders">Loading orders...</div>
+    </div>
+    
+    <div class="card">
+        <h3>My Wishlist</h3>
+        <div id="wishlist">Loading wishlist...</div>
+    </div>
+
+    <script>
+        async function loadDashboard() {
+            try {
+                const response = await fetch('/api/auth/me', { credentials: 'include' });
+                if (response.ok) {
+                    const user = await response.json();
+                    document.getElementById('userName').textContent = user.name;
+                    document.getElementById('userEmail').textContent = user.email;
+                    document.getElementById('userPhone').textContent = user.phone || 'Not set';
+                    document.getElementById('userRole').textContent = user.role || 'user';
+                    document.getElementById('memberSince').textContent = user.created_at ? new Date(user.created_at).toLocaleDateString() : 'Today';
+                } else {
+                    window.location.href = '/login.html';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                window.location.href = '/login.html';
+            }
+            
+            // Load orders
+            try {
+                const ordersRes = await fetch('/api/user/orders', { credentials: 'include' });
+                const orders = await ordersRes.json();
+                const ordersDiv = document.getElementById('orders');
+                if (orders.length === 0) {
+                    ordersDiv.innerHTML = '<p>No orders yet. Start shopping!</p>';
+                } else {
+                    ordersDiv.innerHTML = orders.map(order => `
+                        <div style="border:1px solid #333; padding:10px; margin:10px 0; border-radius:5px;">
+                            <strong>Order #${order.id}</strong><br>
+                            Amount: $${order.total_amount}<br>
+                            Status: ${order.status}<br>
+                            Date: ${new Date(order.created_at).toLocaleDateString()}
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                document.getElementById('orders').innerHTML = '<p>No orders yet</p>';
+            }
+            
+            // Load wishlist
+            try {
+                const wishlistRes = await fetch('/api/user/wishlist', { credentials: 'include' });
+                const wishlist = await wishlistRes.json();
+                const wishlistDiv = document.getElementById('wishlist');
+                if (wishlist.length === 0) {
+                    wishlistDiv.innerHTML = '<p>Your wishlist is empty. Browse cars and save your favorites!</p>';
+                } else {
+                    wishlistDiv.innerHTML = wishlist.map(item => `
+                        <div style="border:1px solid #333; padding:10px; margin:10px 0; border-radius:5px;">
+                            <strong>${item.cars?.title || 'Tesla'}</strong><br>
+                            Price: $${item.cars?.price || 0}
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                document.getElementById('wishlist').innerHTML = '<p>Wishlist empty</p>';
+            }
+        }
+        
+        async function logout() {
+            await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+            window.location.href = '/login.html';
+        }
+        
+        loadDashboard();
+    </script>
+</body>
+</html>
